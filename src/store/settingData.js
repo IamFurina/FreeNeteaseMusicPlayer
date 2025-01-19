@@ -7,7 +7,7 @@ const useSettingDataStore = defineStore("settingData", {
   state: () => {
     return {
       // 全局主题
-      theme: "light",
+      theme: "dark",
       themeAuto: true,
       themeType: "red",
       themeData: {},
@@ -44,7 +44,7 @@ const useSettingDataStore = defineStore("settingData", {
       // 歌词模糊
       lyricsBlur: false,
       // 音乐频谱
-      musicFrequency: false,
+      musicFrequency: true,
       // 鼠标移入歌词区域暂停滚动
       lrcMousePause: false,
       // 是否使用网易云解灰
