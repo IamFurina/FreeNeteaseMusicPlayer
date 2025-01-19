@@ -1,9 +1,9 @@
 {
-  "name": "GMPlayer",
-  "version": "2.0",
-  "author": "GBCLStudio",
-  "home": "https://gbclstudio.cn",
-  "github": "https://github.com/Burial0268/SPlayer",
+  "name": "网易云音乐",
+  "version": "1.0.2.4",
+  "author": "Focalors Ltd.",
+  "home": "https://focalors.ltd",
+  "github": "https://focalors.ltd/%E4%BF%A1%E6%81%AF%E8%AF%BE%E4%B8%93%E5%8C%BA/404",
   "scripts": {
     "dev": "vite --host",
     "build": "vite build",
@@ -14,7 +14,6 @@
     "@icon-park/vue-next": "^1.4.2",
     "@ivanv/vue-collapse-transition": "^1.0.2",
     "@material/material-color-utilities": "^0.3.0",
-    "@tauri-apps/api": "^1.6.0",
     "artplayer": "^5.1.6",
     "axios": "^1.7.2",
     "colorthief": "^2.4.0",
