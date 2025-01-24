@@ -1,6 +1,6 @@
 <div align="center">
 <img alt="logo" height="80" src="./public/images/logo/favicon.png" />
-<h2>GMlayer</h2>
+<h2>网易云音乐</h2>
 <p>一个简约的在线音乐播放器</p>
 <img alt="main" src="./screenshots/main.png" />
 </div>
@@ -8,8 +8,7 @@
 
 ## 说明
 
-> **当前项目正在重构中，当前版本进入维护模式，仅在遇到重大问题时会进行修复**
-> - 支持客户端与网页端
+> - 支持网页端
 > - 支持现有版本所有功能
 > - 新增支持播放与管理本地歌曲
 
@@ -20,7 +19,7 @@
 
 ## 👀 Demo
 
-- [SPlayer](https://music.gbclstudio.cn/)
+- [SPlayer](https://music.focalors.ltd/)
 
 ## 🎉 功能
 
@@ -100,15 +99,15 @@
 
 > 本程序依赖 [NeteaseCloudMusicApi](https://github.com/Binaryify/NeteaseCloudMusicApi) 运行，请确保您已成功部署该项目
 
-- 请在根目录下的 `.env` 文件中的 `VITE_MUSIC_API` 中填入 API 地址（必需）
+- 请在根目录下的 `.env` 文件中的 `VITE_MUSIC_API` 中填入 API 地址（已填入API，但是建议自己部署一个API）
 
 ```js
 VITE_MUSIC_API = "your api url";
 ```
 
 ### 网易云解灰 API（可选）
-
-如需使用网易云解灰服务，请前往 [UNM-Server](https://github.com/imsyy/UNM-Server) 部署在线 API 服务并将 `API` 地址填入 `.env` 环境变量中，该服务用于网页端替换无法播放或无版权的歌曲。如不需要该服务，请前往站点的 `全局设置` 中关闭
+> 当前已填入API，但是建议自己部署一个
+如需使用网易云解灰服务，请前往 [UNM-Server](https://github.com/IamFurina/UNM-Server) 部署在线 API 服务并将 `API` 地址填入 `.env` 环境变量中，该服务用于网页端替换无法播放或无版权的歌曲。如不需要该服务，请前往站点的 `全局设置` 中关闭
 
 ### 安装依赖
 
