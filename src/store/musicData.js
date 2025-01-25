@@ -8,7 +8,7 @@ import { userStore, settingStore } from "@/store";
 import { NIcon } from "naive-ui";
 import { PlayCycle, PlayOnce, ShuffleOne } from "@icon-park/vue-next";
 import { soundStop, fadePlayOrPause } from "@/utils/Player";
-import parseLyric from "@/utils/parseLyric";
+import { parseLyric } from "@/utils/parseLyric";
 import getLanguageData from "@/utils/getLanguageData";
 
 const useMusicDataStore = defineStore("musicData", {
@@ -22,15 +22,17 @@ const useMusicDataStore = defineStore("musicData", {
       showPlayList: false,
       // 播放状态
       playState: false,
-      // 当前歌曲播放链接
-      // playSongLink: null,
       // 当前歌曲歌词数据
-      playSongLyric: {
+      songLyric: {
         lrc: [],
         yrc: [],
-        hasTran: false,
-        hasTran: false,
+        lrcAMData: [],
+        yrcAMData: [],
+        hasLrcTran: false,
+        hasLrcRoma: false,
         hasYrc: false,
+        hasYrcTran: false,
+        hasYrcRoma: false
       },
       // 当前歌曲歌词播放索引
       playSongLyricIndex: 0,
@@ -118,7 +120,7 @@ const useMusicDataStore = defineStore("musicData", {
     },
     // 获取当前歌词
     getPlaySongLyric(state) {
-      return state.playSongLyric;
+      return state.songLyric;
     },
     // 获取当前歌词索引
     getPlaySongLyricIndex(state) {
@@ -308,19 +310,23 @@ const useMusicDataStore = defineStore("musicData", {
     setPlaySongLyric(value) {
       if (value.lrc) {
         try {
-          this.playSongLyric = parseLyric(value);
+          this.songLyric = parseLyric(value);
         } catch (err) {
           $message.error(getLanguageData("getLrcError"));
           console.error(getLanguageData("getLrcError"), err);
         }
       } else {
         console.log("该歌曲暂无歌词");
-        this.playSongLyric = {
+        this.songLyric = {
           lrc: [],
           yrc: [],
-          hasTran: false,
-          hasTran: false,
+          lrcAMData: [],
+          yrcAMData: [],
+          hasLrcTran: false,
+          hasLrcRoma: false,
           hasYrc: false,
+          hasYrcTran: false,
+          hasYrcRoma: false
         };
       }
     },
@@ -348,8 +354,8 @@ const useMusicDataStore = defineStore("musicData", {
       }
       // 计算当前歌词播放索引
       const setting = settingStore();
-      const lrcType = !this.playSongLyric.hasYrc || !setting.showYrc;
-      const lyrics = lrcType ? this.playSongLyric.lrc : this.playSongLyric.yrc;
+      const lrcType = !this.songLyric.hasYrc || !setting.showYrc;
+      const lyrics = lrcType ? this.songLyric.lrc : this.songLyric.yrc;
       const index = lyrics?.findIndex((v) => v?.time >= value?.currentTime);
       this.playSongLyricIndex = index === -1 ? lyrics.length - 1 : index - 1;
     },
@@ -560,6 +566,18 @@ const useMusicDataStore = defineStore("musicData", {
           this.persistData.searchHistory.pop();
         }
       }
+    },
+    // 更新当前播放时间
+    updateCurrentTime(time) {
+      this.currentTime = Math.floor(time * 1000); // 转换为毫秒
+    },
+    // 设置加载状态
+    setLoadingState(state) {
+      this.isLoadingSong = state;
+    },
+    // 设置播放状态
+    setPlayState(state) {
+      this.playState = state;
     },
   },
   // 开启数据持久化

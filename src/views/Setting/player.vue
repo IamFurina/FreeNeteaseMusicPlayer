@@ -111,10 +111,44 @@
       </n-card>
       <n-card class="set-item">
         <div class="name">
-          {{ $t("setting.showYrcTransform") }}
-          <span class="tip">{{ $t("setting.showYrcTransformTip") }}</span>
+          弹簧动画参数
+          <span class="tip">调整歌词动画的弹性效果</span>
         </div>
-        <n-switch v-model:value="showYrcTransform" :round="false" />
+        <n-collapse>
+          <n-collapse-item title="横向移动">
+            <n-form-item label="质量">
+              <n-input-number v-model:value="springParams.posX.mass" :min="0.1" :step="0.1" />
+            </n-form-item>
+            <n-form-item label="阻尼">
+              <n-input-number v-model:value="springParams.posX.damping" :min="0" :step="1" />
+            </n-form-item>
+            <n-form-item label="刚度">
+              <n-input-number v-model:value="springParams.posX.stiffness" :min="0" :step="1" />
+            </n-form-item>
+          </n-collapse-item>
+          <n-collapse-item title="纵向移动">
+            <n-form-item label="质量">
+              <n-input-number v-model:value="springParams.posY.mass" :min="0.1" :step="0.1" />
+            </n-form-item>
+            <n-form-item label="阻尼">
+              <n-input-number v-model:value="springParams.posY.damping" :min="0" :step="1" />
+            </n-form-item>
+            <n-form-item label="刚度">
+              <n-input-number v-model:value="springParams.posY.stiffness" :min="0" :step="1" />
+            </n-form-item>
+          </n-collapse-item>
+          <n-collapse-item title="缩放">
+            <n-form-item label="质量">
+              <n-input-number v-model:value="springParams.scale.mass" :min="0.1" :step="0.1" />
+            </n-form-item>
+            <n-form-item label="阻尼">
+              <n-input-number v-model:value="springParams.scale.damping" :min="0" :step="1" />
+            </n-form-item>
+            <n-form-item label="刚度">
+              <n-input-number v-model:value="springParams.scale.stiffness" :min="0" :step="1" />
+            </n-form-item>
+          </n-collapse-item>
+        </n-collapse>
       </n-card>
     </template>
     <n-card class="set-item">
@@ -178,19 +212,35 @@
         3.6: t('setting.lyrics2'),
         4: t('setting.lyrics3'),
       }" />
-      <div :class="lyricsBlur ? 'more blur' : 'more'">
-        <div v-for="n in 3" :key="n" :class="n === 2 ? 'lrc on' : 'lrc'" :style="{
-          margin: n === 2 ? '12px 0' : null,
-          alignItems: lyricsPosition == 'center' ? 'center' : null,
-          transformOrigin:
-            lyricsPosition == 'center' ? 'center' : 'center left',
-        }">
-          <span :style="{ fontSize: lyricsFontSize + 'vh' }">这是一句歌词
-          </span>
-          <span :style="{ fontSize: lyricsFontSize - 0.4 + 'vh' }">This is a lyric
-          </span>
-        </div>
-      </div>
+    </n-card>
+    <n-card class="set-item">
+      <div class="name">歌词字体</div>
+      <n-select class="set" v-model:value="lyricFont" :options="[
+        { label: 'HarmonyOS Sans SC', value: 'HarmonyOS Sans SC' },
+        { label: 'PingFang SC', value: 'PingFang SC' },
+        { label: 'Microsoft YaHei', value: 'Microsoft YaHei' },
+        { label: 'Noto Sans SC', value: 'Noto Sans SC' },
+      ]" />
+    </n-card>
+    <n-card class="set-item">
+      <div class="name">歌词字重</div>
+      <n-select class="set" v-model:value="lyricFontWeight" :options="[
+        { label: '常规', value: 'normal' },
+        { label: '中等', value: '500' },
+        { label: '粗体', value: 'bold' },
+      ]" />
+    </n-card>
+    <n-card class="set-item">
+      <div class="name">歌词字间距</div>
+      <n-select class="set" v-model:value="lyricLetterSpacing" :options="[
+        { label: '正常', value: 'normal' },
+        { label: '紧凑', value: '-0.05em' },
+        { label: '宽松', value: '0.05em' },
+      ]" />
+    </n-card>
+    <n-card class="set-item">
+      <div class="name">歌词行高</div>
+      <n-input-number v-model:value="lyricLineHeight" :min="1" :max="3" :step="0.1" />
     </n-card>
     <n-card class="set-item">
       <div class="name">{{ $t("setting.lyricsPosition") }}</div>
@@ -244,7 +294,11 @@ const {
   countDownShow,
   showYrcAnimation,
   colorType,
-  showYrcTransform,
+  springParams,
+  lyricFont,
+  lyricFontWeight,
+  lyricLetterSpacing,
+  lyricLineHeight,
 } = storeToRefs(setting);
 console.log('SETTING', fps)
 const isModalOn = ref(false)

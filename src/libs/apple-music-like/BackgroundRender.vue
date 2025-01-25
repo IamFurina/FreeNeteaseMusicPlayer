@@ -7,7 +7,7 @@ import {
   BackgroundRender as CoreBackgroundRender,
   AbstractBaseRenderer,
   BaseRenderer,
-  EplorRenderer,
+  MeshGradientRenderer,
 } from "@applemusic-like-lyrics/core";
 import { ref, onMounted, onUnmounted, watch, defineExpose } from "vue";
 
@@ -35,7 +35,7 @@ const coreBGRenderRef = ref<AbstractBaseRenderer>();
 const wrapperRef = ref<HTMLDivElement | null>(null);
 
 onMounted(() => {
-  coreBGRenderRef.value = CoreBackgroundRender.new(props.renderer ?? EplorRenderer);
+  coreBGRenderRef.value = CoreBackgroundRender.new(props.renderer ?? MeshGradientRenderer);
   if (props.album) coreBGRenderRef.value?.setAlbum(props.album);
   if (props.fps) coreBGRenderRef.value?.setFPS(props.fps);
   if (props.playing) {

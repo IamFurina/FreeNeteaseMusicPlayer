@@ -30,19 +30,27 @@ const useSettingDataStore = defineStore("settingData", {
       // 是否显示逐字歌词上浮
       showYrcTransform: false,
       // 是否显示歌词翻译
-      showTransl: true,
+      showTransl: false,
       // 是否显示歌词音译
-      showRoma: true,
+      showRoma: false,
       // 歌曲音质
       songLevel: "exhigh",
       // 歌词位置
       lyricsPosition: "left",
       // 歌词滚动位置
-      lyricsBlock: "start",
+      lyricsBlock: "top",
       // 歌词大小
       lyricsFontSize: 3.6,
+      // 歌词字体
+      lyricFont: 'HarmonyOS Sans SC',
+      // 歌词字重
+      lyricFontWeight: 'normal',
+      // 歌词字间距
+      lyricLetterSpacing: 'normal',
+      // 歌词行高
+      lyricLineHeight: 1.8,
       // 歌词模糊
-      lyricsBlur: false,
+      lyricsBlur: true,
       // 音乐频谱
       musicFrequency: true,
       // 鼠标移入歌词区域暂停滚动
@@ -52,9 +60,9 @@ const useSettingDataStore = defineStore("settingData", {
       // 播放背景是否显示图片
       backgroundImageShow: "blur",
       // 流动背景设置
-      fps: 30,
+      fps: 60,
       flowSpeed: 2,
-      renderScale: 0.5,
+      renderScale: 1,
       albumImageUrl: "none",
       // 动态背景设置
       dynamicFlowSpeed: false,
@@ -73,10 +81,28 @@ const useSettingDataStore = defineStore("settingData", {
       language: "zh-CN",
       // 底栏点击展开播放器
       bottomClick: false,
-      // 沉浸式播放器,
-      immersivePlayer: true,
-      // 沉浸式播放器取色类型,
-      colorType: 'secondary',
+      // 沉浸式播放器
+      immersivePlayer: false,
+      // 沉浸式播放器取色类型
+      colorType: "secondary",
+      // 弹簧动画参数
+      springParams: {
+        posX: {
+          mass: 1,
+          damping: 10,
+          stiffness: 100
+        },
+        posY: {
+          mass: 1,
+          damping: 15,
+          stiffness: 100
+        },
+        scale: {
+          mass: 1,
+          damping: 20,
+          stiffness: 100
+        }
+      }
     };
   },
   getters: {

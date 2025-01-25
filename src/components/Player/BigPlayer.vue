@@ -484,6 +484,7 @@ watch(
     &.noLrc {
       .left {
         padding-right: 0;
+        width: 50%;
         transform: translateX(25vh);
 
         @media (max-width: 1200px) {
@@ -521,7 +522,6 @@ watch(
         .lrcShow {
           .lrc-all {
             height: 70vh !important;
-            // padding-right: 16% !important;
             margin-right: 0 !important;
           }
 
@@ -554,10 +554,8 @@ watch(
     }
 
     .left {
-      // flex: 1;
-      // padding: 0 4vw;
       transform: translateX(0);
-      width: 50%;
+      width: 40%;
       display: flex;
       flex-direction: column;
       align-items: flex-end;
@@ -571,7 +569,6 @@ watch(
       transform: translateX(0);
       flex: 1;
       height: 100%;
-      padding-left: 2vw;
 
       .lrcShow {
         height: 100%;

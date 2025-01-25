@@ -1,6 +1,14 @@
 import getLanguageData from "./getLanguageData";
-import { invoke } from '@tauri-apps/api';
 import { format } from 'date-fns';
+
+export const msToS = (milliseconds, decimalPlaces = 2)=> {
+  return Number((milliseconds / 1000).toFixed(decimalPlaces));
+};
+
+export const msToTime = (milliseconds) => {
+  const dur = dayjs.duration(milliseconds, "milliseconds");
+  return milliseconds < 3600000 ? dur.format("mm:ss") : dur.format("H:mm:ss");
+};
 
 /**
  * 歌曲时长时间戳转换

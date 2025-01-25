@@ -1,17 +1,6 @@
 <template>
   <Provider>
     <n-layout style="height: 100vh">
-      <div v-if="invoke('detect_desktop').then((response) => { return response })" data-tauri-drag-region class="titlebar">
-        <div class="titlebar-button" id="titlebar-minimize" @click="appWindow.minimize()">
-          <img src="/images/window-minimize.svg" alt="minimize" />
-        </div>
-        <div class="titlebar-button" id="titlebar-maximize" @click="appWindow.toggleMaximize()">
-          <img src="/images/window-maximize.svg" alt="maximize" />
-        </div>
-        <div class="titlebar-button" id="titlebar-close" @click="appWindow.close()">
-          <img src="/images/close.svg" alt="close" />
-        </div>
-      </div>
       <n-layout-header bordered>
         <Nav />
       </n-layout-header>
@@ -40,8 +29,6 @@
 <script setup>
 import { musicStore, userStore, settingStore, siteStore } from "@/store";
 import { useRouter } from "vue-router";
-import { invoke } from '@tauri-apps/api';
-import { appWindow } from '@tauri-apps/api/window';
 import { getLoginState, refreshLogin } from "@/api/login";
 import { userDailySignin, userYunbeiSign } from "@/api/user";
 import { useI18n } from "vue-i18n";

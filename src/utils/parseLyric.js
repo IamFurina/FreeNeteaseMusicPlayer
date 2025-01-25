@@ -1,12 +1,35 @@
+import { parseLrc as parseCoreLrc, parseYrc as parseCoreYrc } from "@applemusic-like-lyrics/lyric";
+import { msToS, msToTime } from "./timeTools";
+
+
+// 恢复默认
+const resetSongLyric = () => {
+  const music = musicStore();
+  music.songLyric = {
+    lrc: [],
+    yrc: [],
+    lrcAMData: [],
+    yrcAMData: [],
+    hasLrcTran: false,
+    hasLrcRoma: false,
+    hasYrc: false,
+    hasYrcTran: false,
+    hasYrcRoma: false
+  };
+};
+
 /**
- * 将歌词接口数据解析出对应数据
- * @param {string} data 接口数据
- * @returns {Array} 对应数据
+ * Parse lyric data from API response
+ * @param {Object} data API response data
+ * @returns {Object} Parsed lyric data
  */
 const parseLyric = (data) => {
-  // 判断是否具有内容
-  const checkLyric = (lyric) => (lyric ? (lyric.lyric ? true : false) : false);
-  // 初始化数据
+  if (!data || data.code !== 200) {
+    resetSongLyric();
+    return;
+  }
+
+  // Initialize lyric data
   const { lrc, tlyric, romalrc, yrc, ytlrc, yromalrc } = data;
   const lrcData = {
     lrc: lrc?.lyric || null,
@@ -14,181 +37,180 @@ const parseLyric = (data) => {
     romalrc: romalrc?.lyric || null,
     yrc: yrc?.lyric || null,
     ytlrc: ytlrc?.lyric || null,
-    yromalrc: yromalrc?.lyric || null,
+    yromalrc: yromalrc?.lyric || null
   };
-  // 初始化输出结果
+
+  // Initialize result object
   const result = {
-    // 是否具有普通翻译
-    hasLrcTran: checkLyric(tlyric),
-    // 是否具有普通音译
-    hasLrcRoma: checkLyric(romalrc),
-    // 是否具有逐字歌词
-    hasYrc: checkLyric(yrc),
-    // 是否具有逐字翻译
-    hasYrcTran: checkLyric(ytlrc),
-    // 是否具有逐字音译
-    hasYrcRoma: checkLyric(yromalrc),
-    // 普通歌词数组
+    hasLrcTran: !!lrcData.tlyric,
+    hasLrcRoma: !!lrcData.romalrc,
+    hasYrc: !!lrcData.yrc,
+    hasYrcTran: !!lrcData.ytlrc,
+    hasYrcRoma: !!lrcData.yromalrc,
     lrc: [],
-    // 逐字歌词数据
     yrc: [],
+    lrcAMData: [],
+    yrcAMData: []
   };
-  // 普通歌词
+
+  // Parse normal lyrics
   if (lrcData.lrc) {
-    result.lrc = parseLrc(lrcData.lrc);
-    //判断是否有其他翻译
-    result.lrc = lrcData.tlyric
-      ? parseOtherLrc(result.lrc, parseLrc(lrcData.tlyric), "tran")
-      : result.lrc;
-    result.lrc = lrcData.romalrc
-      ? parseOtherLrc(result.lrc, parseLrc(lrcData.romalrc), "roma")
-      : result.lrc;
+    const lrcParsed = parseCoreLrc(lrcData.lrc);
+    result.lrc = parseLrcData(lrcParsed);
+
+    // Parse translations if they exist
+    let tranParsed = [];
+    let romaParsed = [];
+
+    if (lrcData.tlyric) {
+      tranParsed = parseCoreLrc(lrcData.tlyric);
+      result.lrc = alignLyrics(result.lrc, parseLrcData(tranParsed), "tran");
+    }
+    if (lrcData.romalrc) {
+      romaParsed = parseCoreLrc(lrcData.romalrc);
+      result.lrc = alignLyrics(result.lrc, parseLrcData(romaParsed), "roma");
+    }
+
+    // Generate AM format data for LRC
+    result.lrcAMData = parseAMData(lrcParsed, tranParsed, romaParsed);
   }
-  // 逐字歌词
+
+  // Parse YRC lyrics
   if (lrcData.yrc) {
-    result.yrc = parseYrc(lrcData.yrc);
-    //判断是否有其他翻译
-    result.yrc = lrcData.ytlrc
-      ? parseOtherLrc(result.yrc, parseLrc(lrcData.ytlrc), "tran")
-      : result.yrc;
-    result.yrc = lrcData.yromalrc
-      ? parseOtherLrc(result.yrc, parseLrc(lrcData.yromalrc), "roma")
-      : result.yrc;
+    const yrcParsed = parseCoreYrc(lrcData.yrc);
+    result.yrc = parseYrcData(yrcParsed);
+
+    // Parse translations if they exist
+    let tranParsed = [];
+    let romaParsed = [];
+
+    if (lrcData.ytlrc) {
+      tranParsed = parseCoreLrc(lrcData.ytlrc);
+      result.yrc = alignLyrics(result.yrc, parseLrcData(tranParsed), "tran");
+    }
+    if (lrcData.yromalrc) {
+      romaParsed = parseCoreLrc(lrcData.yromalrc);
+      result.yrc = alignLyrics(result.yrc, parseLrcData(romaParsed), "roma");
+    }
+
+    // Generate AM format data for YRC
+    result.yrcAMData = parseAMData(yrcParsed, tranParsed, romaParsed);
   }
-  console.log(result);
+
   return result;
 };
 
 /**
- * 翻译文本对齐
- * @param {string} lrc 歌词字符串
- * @param {string} tranLrc 翻译歌词字符串
- * @returns {Array} 包含翻译的歌词对象数组
+ * Parse normal LRC lyrics
+ * @param {Array} lrcData Array of LyricLine objects
+ * @returns {Array} Parsed lyric data
  */
-const parseOtherLrc = (lrc, tranLrc, name) => {
-  const lyric = lrc;
-  const tranLyric = tranLrc;
-  if (lyric[0] && tranLyric[0]) {
-    lyric.forEach((v) => {
-      tranLyric.forEach((x) => {
-        if (
-          Number(v.time) === Number(x.time) ||
-          Math.abs(Number(v.time) - Number(x.time)) < 0.6
-        ) {
-          v[name] = x.content;
+const parseLrcData = (lrcData) => {
+  if (!lrcData) return [];
+
+  return lrcData
+    .map(line => {
+      const words = line.words;
+      const time = msToS(words[0].startTime);
+      const content = words[0].word.trim();
+
+      if (!content) return null;
+
+      return {
+        time,
+        content
+      };
+    })
+    .filter(line => line !== null);
+};
+
+/**
+ * Parse YRC (word-by-word) lyrics
+ * @param {Array} yrcData Array of LyricLine objects
+ * @returns {Array} Parsed YRC data
+ */
+const parseYrcData = (yrcData) => {
+  if (!yrcData) return [];
+
+  return yrcData
+    .map(line => {
+      const words = line.words;
+      const time = msToS(words[0].startTime);
+      const endTime = msToS(words[words.length - 1].endTime);
+
+      const content = words.map(word => ({
+        time: msToS(word.startTime),
+        endTime: msToS(word.endTime),
+        duration: msToS(word.endTime - word.startTime),
+        content: word.word.trim(),
+        endsWithSpace: word.word.endsWith(" ")
+      }));
+
+      const contentStr = content
+        .map(word => word.content + (word.endsWithSpace ? " " : ""))
+        .join("");
+
+      if (!contentStr) return null;
+
+      return {
+        time,
+        endTime,
+        content,
+        TextContent: contentStr
+      };
+    })
+    .filter(line => line !== null);
+};
+
+/**
+ * Align lyrics with translations
+ * @param {Array} lyrics Main lyrics array
+ * @param {Array} otherLyrics Translation lyrics array
+ * @param {string} key Property key for translation ('tran' or 'roma')
+ * @returns {Array} Aligned lyrics array
+ */
+const alignLyrics = (lyrics, otherLyrics, key) => {
+  if (lyrics.length && otherLyrics.length) {
+    lyrics.forEach(mainLine => {
+      otherLyrics.forEach(transLine => {
+        if (mainLine.time === transLine.time || Math.abs(mainLine.time - transLine.time) < 0.6) {
+          mainLine[key] = transLine.content;
         }
       });
     });
   }
-  return lyric;
+  return lyrics;
 };
 
 /**
- * 普通歌词解析
- * @param {string} lyrics 歌词字符串
- * @returns {Array} 歌词对象数组
+ * Parse lyrics for Apple Music like format
+ * @param {Array} lrcData Main lyrics array
+ * @param {Array} tranData Translation lyrics array
+ * @param {Array} romaData Romanization lyrics array
+ * @returns {Array} Formatted lyrics array
  */
-const parseLrc = (lyrics) => {
-  if (!lyrics) return [];
-  try {
-    // 匹配时间轴和歌词文本的正则表达式
-    const regex = /^\[([^\]]+)\]\s*(.+?)\s*$/;
-    // 将歌词字符串按行分割为数组
-    const lines = lyrics.split("\n");
-    // 对每一行进行转换
-    const parsedLyrics = lines
-      // 筛选出包含时间轴和歌词文本的行
-      .filter((line) => regex.test(line))
-      // 转换时间轴和歌词文本为对象
-      .map((line) => {
-        const [, time, text] = line.match(regex);
-        const parts = time.split(":");
-        const seconds =
-          Number(parts[0]) * 60 +
-          Number(parts[1]) +
-          (parts.length > 2 ? Number(parts[2]) / 1000 : 0);
-        return { time: Number(seconds.toFixed(2)), content: text.trim() };
-      })
-      .filter((c) => c.content.trim() !== "");
-    // 检查是否为纯音乐，是则返回空数组
-    if (parsedLyrics.length && /纯音乐，请欣赏/.test(parsedLyrics[0].content)) {
-      console.log("该歌曲为纯音乐");
-      return [];
-    }
-    return parsedLyrics;
-  } catch (err) {
-    console.error("普通歌词处理出错：" + err);
-    return [];
-  }
+const parseAMData = (lrcData, tranData = [], romaData = []) => {
+  return lrcData.map((line, index, lines) => ({
+    words: line.words,
+    startTime: line.words[0]?.startTime ?? 0,
+    endTime: lines[index + 1]?.words?.[0]?.startTime ??
+             line.words?.[line.words.length - 1]?.endTime ??
+             Infinity,
+    translatedLyric: tranData?.[index]?.words?.[0]?.word ?? "",
+    romanLyric: romaData?.[index]?.words?.[0]?.word ?? "",
+    isBG: line.isBG ?? false,
+    isDuet: line.isDuet ?? false,
+  }));
 };
 
-/**
- * 逐字歌词解析
- * @param {string} lyrics 逐字歌词字符串
- * @returns {Array} 歌词对象数组
- */
-const parseYrc = (lyrics) => {
-  if (!lyrics) return [];
-  try {
-    // Split lyrics into lines
-    const lines = lyrics.split("\n");
-
-    // Process each line to extract timestamp and content
-    const parsedLyrics = lines.reduce((result, line) => {
-      // 匹配每一行中的时间戳信息
-      const timeReg = /\[(\d+),(\d+)\]/;
-      const timeMatch = line.match(timeReg);
-      if (!timeMatch) {
-        return result;
-      }
-      // 解构出起始时间和结束时间
-      const [_, startTime, endTime] = timeMatch;
-      if (isNaN(startTime) || isNaN(endTime)) {
-        return result;
-      }
-      // 去除当前行中的时间戳信息，得到歌词内容
-      const content = line.replace(timeReg, "");
-      if (!content) {
-        return result;
-      }
-      // 对歌词内容中的时间戳和歌词内容分离
-      const contentArray = content
-        .split(/(\([1-9]\d*,[1-9]\d*,\d*\)[^\(]*)/g)
-        .filter((c) => c.trim())
-        .map((c) => {
-          // 匹配当前片段中的时间戳信息
-          const timeReg = /\((\d+),(\d+),(\d+)\)/;
-          const timeMatch = c.match(timeReg);
-          if (!timeMatch) {
-            return null;
-          }
-          // 解构出时间戳，持续时间和歌词内容
-          const [_, time, duration] = timeMatch;
-          const content = c.replace(timeReg, "");
-          if (!content) {
-            return null;
-          }
-          return {
-            time: Number(time) / 1000 + 0.1,
-            duration: Number(duration) / 1000,
-            content,
-          };
-        })
-        .filter((c) => c);
-      // Push the parsed line into result
-      result.push({
-        time: Number(startTime) / 1000,
-        endTime: Number(endTime) / 1000,
-        content: contentArray,
-      });
-      return result;
-    }, []);
-
-    return parsedLyrics;
-  } catch (err) {
-    console.error("逐字歌词处理出错：" + err);
-    return [];
-  }
+// Export both named exports and default export
+export {
+  parseLyric,
+  parseLrcData,
+  parseYrcData,
+  alignLyrics,
+  parseAMData
 };
 
+export { resetSongLyric };
 export default parseLyric;

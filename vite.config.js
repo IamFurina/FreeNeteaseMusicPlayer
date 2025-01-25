@@ -5,6 +5,8 @@ import { VitePWA } from "vite-plugin-pwa";
 import vue from "@vitejs/plugin-vue";
 import viteCompression from "vite-plugin-compression";
 import AutoImport from "unplugin-auto-import/vite";
+import wasm from "vite-plugin-wasm";
+import topLevelAwait from "vite-plugin-top-level-await";
 import Components from "unplugin-vue-components/vite";
 
 // https://vitejs.dev/config/
@@ -12,6 +14,11 @@ export default ({ mode }) =>
   defineConfig({
     plugins: [
       vue(),
+      wasm(),
+      topLevelAwait({
+        promiseExportName: '__tla',
+        promiseImportName: (i) => `__tla_${i}`,
+      }),
       AutoImport({
         imports: [
           "vue",
@@ -96,9 +103,12 @@ export default ({ mode }) =>
     },
     build: {
       // Tauri uses Chromium on Windows and WebKit on macOS and Linux
-      target: process.env.TAURI_PLATFORM == 'windows' ? 'chrome105' : 'safari13',
+      target: 'esnext',
       // don't minify for debug builds
       minify: !process.env.TAURI_DEBUG ? 'esbuild' : false,
+      compress: {
+        pure_funcs: ["console.log"],
+      },
       // 为调试构建生成源代码映射 (sourcemap)
       sourcemap: !!process.env.TAURI_DEBUG,
     },

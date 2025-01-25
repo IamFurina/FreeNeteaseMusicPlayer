@@ -18,7 +18,9 @@
 
 <script setup>
 import { musicStore } from "@/store";
+import { ref, watch } from 'vue';
 
+const emit = defineEmits(['countdown-end']);
 const music = musicStore();
 
 // 剩余点数
@@ -38,6 +40,11 @@ watch(
         const remainingTime = totalDuration.value - val - 0.5;
         const progress = 1 - remainingTime / totalDuration.value;
         remainingPoint.value = Number(Math.floor(3 * progress));
+        
+        // 当倒计时结束时触发事件
+        if (remainingPoint.value >= 3) {
+          emit('countdown-end');
+        }
       }
     }
   }
