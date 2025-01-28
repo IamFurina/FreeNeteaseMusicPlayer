@@ -52,7 +52,7 @@ const useSettingDataStore = defineStore("settingData", {
       // 歌词模糊
       lyricsBlur: true,
       // 音乐频谱
-      musicFrequency: true,
+      musicFrequency: false,
       // 鼠标移入歌词区域暂停滚动
       lrcMousePause: false,
       // 是否使用网易云解灰
@@ -82,7 +82,7 @@ const useSettingDataStore = defineStore("settingData", {
       // 底栏点击展开播放器
       bottomClick: false,
       // 沉浸式播放器
-      immersivePlayer: false,
+      immersivePlayer: true,
       // 沉浸式播放器取色类型
       colorType: "secondary",
       // 弹簧动画参数
